@@ -15,7 +15,7 @@ extern "C"
 
 #define MAX_FRAME_SIZE 2000
 #define MAX_FRAME_BYTES 2000
-
+#define VERSION "1.2.0 (libspeex 1.2.0)"
 
 typedef struct _TRSpeexDecodeContex
 {

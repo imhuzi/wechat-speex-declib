@@ -6,8 +6,8 @@
 int main(int argc, char* argv[])
 {
 
-	FILE		  *fpInput;
-	FILE		  *fpOutput;
+	FILE *fpInput;
+	FILE *fpOutput;
 
 	char aInputBuffer[MAX_FRAME_SIZE*10];
 	char aOutputBuffer[MAX_FRAME_SIZE*10];
@@ -23,21 +23,15 @@ int main(int argc, char* argv[])
 	int nTotalLen;
 	char buf[44];
 
-
 	if(argc <3)
 	{
-		printf("Usage SpeexDecode InputspxFile OutputWavFile\n");
+		printf("speex_decode (Speex decoder) version %s\nUsage: speex_decode input_file output_file\n", VERSION);
 		return 1;
-
 	}
-
 	
-	memset(aInputBuffer,0,sizeof(char)*MAX_FRAME_SIZE*10);
+	memset(aInputBuffer, 0, sizeof(char)*MAX_FRAME_SIZE*10);
 
-
-	
-	memset(buf,0,44);
-
+	memset(buf, 0, 44);
 
 	buf[0] = 'R';
 	buf[1] = 'I';
@@ -66,65 +60,50 @@ int main(int argc, char* argv[])
 	buf[38] = 't';
 	buf[39] = 'a';
 
-	
-
-
 	TRSpeexDecodeInit(&SpeexDecode);
 
-	fpInput = fopen(argv[1],"rb");
-	
-
-	if(fpInput == NULL)
+	fpInput = fopen(argv[1], "rb");
+	if (fpInput == NULL)
 	{
 		printf("can't open input spx file");
-		return 0;
+		return 2;
 	}
 
-	fpOutput = fopen(argv[2],"wb");
-
-	if(fpOutput == NULL)
+	fpOutput = fopen(argv[2], "wb");
+	if (fpOutput == NULL)
 	{
 		printf("can't open output file");
-		return 0;
+		return 2;
 	}
 
-	fwrite(buf,1,44,fpOutput);
+	fwrite(buf, 1, 44, fpOutput);
 
-	
 	nTotalLen = 0;
-
-
 	buffer_size = 6;
 
-	ret = fread(aInputBuffer, 1,buffer_size,fpInput);
-
+	ret = fread(aInputBuffer, 1, buffer_size, fpInput);
 	while(1)
 	{
-		TRSpeexDecode(&SpeexDecode,aInputBuffer,buffer_size,aOutputBuffer, &nOutSize);
+		TRSpeexDecode(&SpeexDecode, aInputBuffer, buffer_size, aOutputBuffer, &nOutSize);
 
-		ret = fread(aInputBuffer, 1,buffer_size, fpInput);
-		if(ret != buffer_size)
-			break;
-
-		fwrite(aOutputBuffer,1, nOutSize,fpOutput);
+		fwrite(aOutputBuffer, 1, nOutSize, fpOutput);
 		nTotalLen += nOutSize;
 
+		ret = fread(aInputBuffer, 1, buffer_size, fpInput);
+		if (ret != buffer_size)
+			break;
 	}
 
 	TRSpeexDecodeRelease(&SpeexDecode);
 
-	fseek(fpOutput,40,SEEK_SET);
-	fwrite(&nTotalLen,1,4,fpOutput);
+	fseek(fpOutput, 40, SEEK_SET);
+	fwrite(&nTotalLen, 1, 4, fpOutput);
 
-	fseek(fpOutput,4,SEEK_SET);
+	fseek(fpOutput, 4, SEEK_SET);
 	nTotalLen += 36;
-	fwrite(&nTotalLen,1,4,fpOutput);
+	fwrite(&nTotalLen, 1, 4, fpOutput);
 	fclose(fpOutput);
 	fclose(fpInput);
-
-
-
-
 
 	return 0;
 }
